@@ -23,7 +23,7 @@
                             <strong>Kilometri:</strong> {{ number_format($serviceEntry->kilometers, 0, ',', '.') }} km
                         </li>
                         <li class="list-group-item">
-                            <strong>Număr înmatriculare:</strong> {{ $serviceEntry->license_plate }}
+                            <strong>Numar inmatriculare:</strong> {{ $serviceEntry->car->license_plate ?? 'N/A' }}
                         </li>
                         <li class="list-group-item">
                             <strong>Service:</strong> {{ $serviceEntry->service_name }}

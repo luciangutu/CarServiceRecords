@@ -6,6 +6,7 @@
     
     <div class="mb-4">
         <a href="{{ route('service-entries.create') }}" class="btn btn-primary">Adaugă intrare</a>
+        <a href="{{ route('cars.index') }}" class="btn btn-primary">Listează mașinile</a>
     </div>
     
     <div class="card mb-4">
@@ -44,11 +45,13 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="license_plate">Nr. înmatriculare</label>
-                            <select name="license_plate" id="license_plate" class="form-control">
+                            <label for="car_id">Masina</label>
+                            <select name="car_id" id="car_id" class="form-control">
                                 <option value="">Toate</option>
-                                @foreach($licensePlates as $plate)
-                                    <option value="{{ $plate }}" {{ request('license_plate') == $plate ? 'selected' : '' }}>{{ $plate }}</option>
+                                @foreach($cars as $car)
+                                    <option value="{{ $car->id }}" {{ request('car_id') == $car->id ? 'selected' : '' }}>
+                                        {{ $car->license_plate }} - {{ $car->make }} {{ $car->model }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -81,7 +84,7 @@
                 <tr>
                     <td>{{ $entry->date->format('d.m.Y') }}</td>
                     <td>{{ number_format($entry->kilometers, 0, ',', '.') }}</td>
-                    <td>{{ $entry->license_plate }}</td>
+                    <td>{{ $entry->car->license_plate ?? '' }}</td>
                     <td>{{ $entry->service_name }}</td>
                     <td>{{ Str::limit($entry->service_action, 50) }}</td>
                     <td>{{ Str::limit($entry->parts_replaced, 50) }}</td>

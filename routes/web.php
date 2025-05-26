@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ServiceEntryController;
+use App\Http\Controllers\CarController;
 use App\Http\Controllers\Auth\GoogleController;
 
 
@@ -16,6 +17,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 
 Route::middleware('auth')->group(function () {
     Route::resource('service-entries', ServiceEntryController::class);
+    Route::resource('cars', CarController::class);
 
     Route::get('/', function () {
         return redirect()->route('service-entries.index');

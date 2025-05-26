@@ -17,10 +17,20 @@ class ServiceEntry extends Model
         'user_id',
         'date',
         'kilometers',
-        'license_plate',
+        'car_id',
         'service_name',
         'service_action',
         'parts_replaced',
         'cost'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function car()
+    {
+        return $this->belongsTo(Car::class);
+    }
 }

@@ -27,10 +27,16 @@
         </div>
         
         <div class="form-group mb-3">
-            <label for="license_plate">Număr înmatriculare</label>
-            <input type="text" name="license_plate" id="license_plate" class="form-control" 
-                   value="{{ old('license_plate', $serviceEntry->license_plate) }}" required>
-            @error('license_plate')
+            <label for="car_id">Masina (numar inmatriculare)</label>
+            <select name="car_id" id="car_id" class="form-control" required>
+                <option value="">-- Selecteaza masina --</option>
+                @foreach($cars as $car)
+                    <option value="{{ $car->id }}" {{ old('car_id', $serviceEntry->car_id) == $car->id ? 'selected' : '' }}>
+                        {{ $car->license_plate }} - {{ $car->make }} {{ $car->model }}
+                    </option>
+                @endforeach
+            </select>
+            @error('car_id')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
         </div>
