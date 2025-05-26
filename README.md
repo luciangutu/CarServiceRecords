@@ -2,6 +2,9 @@
 
 Aplicatie web pentru gestionarea intrarilor in service ale autovehiculelor personale.
 
+
+![registru.png](registru.png)
+
 ## Functionalitati principale
 
 ✅ **Gestiune intrari service**  
