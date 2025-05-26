@@ -62,8 +62,6 @@ class ServiceEntryController extends Controller
             'cost' => 'nullable|numeric',
         ]);
         
-        dump(auth()->id());
-
         $validated['user_id'] = auth()->id();
         
         ServiceEntry::create($validated);
