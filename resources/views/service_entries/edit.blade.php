@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container">
-    <h1>Editează intrarea service</h1>
+    <h1>Editează intrarea service pentru mașina: {{ $serviceEntry->car->make }} {{ $serviceEntry->car->model }} ({{ $serviceEntry->car->license_plate }})</h1>
     
-    <form method="POST" action="{{ route('service-entries.update', $serviceEntry) }}">
+    <form method="POST" action="{{ route('service_entries.update', $serviceEntry) }}">
         @csrf
         @method('PUT')
         
@@ -26,19 +26,12 @@
             @enderror
         </div>
         
+        {{-- Display the car information but do not allow changing it from this form --}}
         <div class="form-group mb-3">
-            <label for="car_id">Masina (numar inmatriculare)</label>
-            <select name="car_id" id="car_id" class="form-control" required>
-                <option value="">-- Selecteaza masina --</option>
-                @foreach($cars as $car)
-                    <option value="{{ $car->id }}" {{ old('car_id', $serviceEntry->car_id) == $car->id ? 'selected' : '' }}>
-                        {{ $car->license_plate }} - {{ $car->make }} {{ $car->model }}
-                    </option>
-                @endforeach
-            </select>
-            @error('car_id')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
+            <label>Mașina:</label>
+            <p class="form-control-static">{{ $serviceEntry->car->make }} {{ $serviceEntry->car->model }} ({{ $serviceEntry->car->license_plate }})</p>
+            {{-- Pass car_id as hidden if needed by validation or other logic, though ideally not needed if not changing cars --}}
+            {{-- <input type="hidden" name="car_id" value="{{ $serviceEntry->car_id }}"> --}}
         </div>
         
         <div class="form-group mb-3">
@@ -77,7 +70,7 @@
         
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-primary">Actualizează</button>
-            <a href="{{ route('service-entries.index') }}" class="btn btn-secondary">Anulează</a>
+            <a href="{{ route('cars.service_entries.index', $serviceEntry->car) }}" class="btn btn-secondary">Anulează</a>
         </div>
     </form>
 </div>

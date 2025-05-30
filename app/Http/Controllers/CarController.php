@@ -24,13 +24,19 @@ class CarController extends Controller
             'make' => 'required|string|max:50',
             'model' => 'required|string|max:50',
             'license_plate' => 'required|string|max:20|unique:cars,license_plate',
-            'vin' => 'nullable|string|max:50',
+            'vin' => 'nullable|string|max:50|unique:cars,vin',
         ]);
         $validated['user_id'] = auth()->id();
 
         Car::create($validated);
 
         return redirect()->route('cars.index')->with('success', 'Masina a fost adaugata!');
+    }
+
+    public function show(Car $car)
+    {
+        abort_if($car->user_id !== auth()->id(), 403);
+        return view('cars.show', compact('car'));
     }
 
     public function edit(Car $car)
@@ -47,7 +53,7 @@ class CarController extends Controller
             'make' => 'required|string|max:50',
             'model' => 'required|string|max:50',
             'license_plate' => 'required|string|max:20|unique:cars,license_plate,' . $car->id,
-            'vin' => 'nullable|string|max:50',
+            'vin' => 'nullable|string|max:50|unique:cars,vin,' . $car->id,
         ]);
 
         $car->update($validated);

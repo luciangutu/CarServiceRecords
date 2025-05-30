@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container">
-    <h1>Adaugă intrare service</h1>
+    <h1>Adaugă intrare service pentru mașina: {{ $car->make }} {{ $car->model }} ({{ $car->license_plate }})</h1>
     
-    <form method="POST" action="{{ route('service-entries.store') }}">
+    <form method="POST" action="{{ route('cars.service_entries.store', $car) }}">
         @csrf
         
         <div class="form-group">
@@ -17,17 +17,7 @@
             <input type="number" name="kilometers" id="kilometers" class="form-control" required value="{{ old('kilometers') }}">
         </div>
         
-        <div class="form-group">
-            <label for="car_id">Masina</label>
-            <select name="car_id" id="car_id" class="form-control" required>
-                <option value="">-- Selectează mașina --</option>
-                @foreach($cars as $car)
-                    <option value="{{ $car->id }}" {{ old('car_id') == $car->id ? 'selected' : '' }}>
-                        {{ $car->license_plate }} ({{ $car->make }} {{ $car->model }})
-                    </option>
-                @endforeach
-            </select>
-        </div>
+        {{-- car_id is now from the route ($car->id), no need for a selection field here in the create form --}}
         
         <div class="form-group">
             <label for="service_name">Nume service</label>
@@ -50,7 +40,7 @@
         </div>
         
         <button type="submit" class="btn btn-primary">Salvează</button>
-        <a href="{{ route('service-entries.index') }}" class="btn btn-secondary">Anulează</a>
+        <a href="{{ route('cars.service_entries.index', $car) }}" class="btn btn-secondary">Anulează</a>
     </form>
 </div>
 @endsection

@@ -4,7 +4,7 @@
 <div class="container">
     <h1>Masini</h1>
     <a href="{{ route('cars.create') }}" class="btn btn-primary mb-3">Adauga masina noua</a>
-    <a href="{{ route('service-entries.index') }}" class="btn btn-secondary mb-3">Înapoi la Registru</a>
+    {{-- <a href="{{ route('service-entries.index') }}" class="btn btn-secondary mb-3">Înapoi la Registru</a> --}}
     @if($cars->isEmpty())
         <p>Nu exista masini adaugate.</p>
     @else

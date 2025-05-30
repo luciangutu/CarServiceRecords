@@ -9,10 +9,11 @@ use App\Models\Car;
 
 class ServiceEntryController extends Controller
 {
-    public function index(Request $request)
+    public function index(Car $car, Request $request)
     {
-        $cars = Car::where('user_id', auth()->id())->get();
-        $query = ServiceEntry::with('car')->where('user_id', auth()->id());
+        abort_if($car->user_id !== auth()->id(), 403);
+
+        $query = $car->serviceEntries()->with('car')->where('user_id', auth()->id()); // Ensure user_id check for paranoia, though car ownership implies it.
         
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -34,86 +35,87 @@ class ServiceEntryController extends Controller
             $query->where('service_name', $request->input('service_name'));
         }
         
-        // if ($request->filled('license_plate')) {
-        //     $query->whereHas('car', function ($q) use ($request) {
-        //         $q->where('license_plate', $request->input('license_plate'));
-        //     });
-        // }
-
-        if ($request->filled('car_id')) {
-            $query->where('car_id', $request->input('car_id'));
-        }
-        
         $entries = $query->orderBy('date', 'desc')->paginate(10);
         
-        $serviceNames = ServiceEntry::where('user_id', auth()->id())->select('service_name')->distinct()->pluck('service_name');
-        $licensePlates = Car::where('user_id', auth()->id())
-                    ->select('license_plate')->distinct()->pluck('license_plate');
-
-        return view('service_entries.index', compact('entries', 'serviceNames', 'licensePlates', 'cars'));
+        // For filtering dropdowns, specific to this car's entries or all user's entries?
+        // Let's assume specific to this car for now if relevant, or remove if filters are global.
+        $serviceNames = $car->serviceEntries()->where('user_id', auth()->id())->select('service_name')->distinct()->pluck('service_name');
+        
+        return view('service_entries.index', compact('car', 'entries', 'serviceNames'));
     }
 
-    public function create()
+    public function create(Car $car)
     {
-        $cars = Car::where('user_id', auth()->id())->get();
-        return view('service_entries.create', compact('cars'));
+        abort_if($car->user_id !== auth()->id(), 403);
+        return view('service_entries.create', compact('car'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Car $car)
     {
+        abort_if($car->user_id !== auth()->id(), 403);
+
         $validated = $request->validate([
             'date' => 'required|date',
             'kilometers' => 'required|integer',
-            'car_id' => 'required|exists:cars,id',
+            // car_id will be set from the route model $car
             'service_name' => 'required|string|max:100',
             'service_action' => 'required|string',
             'parts_replaced' => 'nullable|string',
-            'cost' => 'nullable|numeric',
+            'cost' => 'required|numeric', // Made required as per test expectation
         ]);
         
         $validated['user_id'] = auth()->id();
+        $validated['car_id'] = $car->id; // Set car_id from the route model
         
-        ServiceEntry::create($validated);
+        $serviceEntry = ServiceEntry::create($validated);
         
-        return redirect()->route('service-entries.index')->with('success', 'Intrare adăugată cu succes!');
+        return redirect()->route('cars.service_entries.index', $car)->with('success', 'Intrare adăugată cu succes!');
     }
 
     public function show(ServiceEntry $serviceEntry)
     {
-        abort_if($serviceEntry->user_id !== auth()->id(), 403);
-        return view('service_entries.show', compact('serviceEntry'));
+        $car = $serviceEntry->car;
+        abort_if($car->user_id !== auth()->id(), 403); // Check ownership of the car linked to the service entry
+        return view('service_entries.show', compact('serviceEntry', 'car'));
     }
 
     public function edit(ServiceEntry $serviceEntry)
     {
-        abort_if($serviceEntry->user_id !== auth()->id(), 403);
-        $cars = Car::where('user_id', auth()->id())->get();
-        return view('service_entries.edit', compact('serviceEntry', 'cars'));
+        $car = $serviceEntry->car;
+        abort_if($car->user_id !== auth()->id(), 403);
+        // $cars needed if we want to allow changing the car, but current tests don't imply this.
+        // If we don't allow changing car, then $car is enough.
+        return view('service_entries.edit', compact('serviceEntry', 'car'));
     }
 
     public function update(Request $request, ServiceEntry $serviceEntry)
     {
-        abort_if($serviceEntry->user_id !== auth()->id(), 403);
+        $car = $serviceEntry->car;
+        abort_if($car->user_id !== auth()->id(), 403);
     
         $validated = $request->validate([
             'date' => 'required|date',
             'kilometers' => 'required|integer',
-            'car_id' => 'required|exists:cars,id',
+            // 'car_id' => 'required|exists:cars,id', // Do not allow changing car_id here to prevent moving to another user's car
             'service_name' => 'required|string|max:100',
             'service_action' => 'required|string',
             'parts_replaced' => 'nullable|string',
-            'cost' => 'nullable|numeric',
+            'cost' => 'required|numeric', // Made required as per test expectation
         ]);
         
+        // Ensure user_id is not changed if it's part of the fillable fields (though it shouldn't be for update by user)
+        // $validated['user_id'] = auth()->id(); // This should not be needed as user_id should not change
+        
         $serviceEntry->update($validated);
-        return redirect()->route('service-entries.index')->with('success', 'Intrare actualizată cu succes!');
+        return redirect()->route('service_entries.show', $serviceEntry)->with('success', 'Intrare actualizată cu succes!');
     }
 
     public function destroy(ServiceEntry $serviceEntry)
     {
-        abort_if($serviceEntry->user_id !== auth()->id(), 403);
+        $car = $serviceEntry->car;
+        abort_if($car->user_id !== auth()->id(), 403);
         $serviceEntry->delete();
         
-        return redirect()->route('service-entries.index')->with('success', 'Intrare ștearsă cu succes!');
+        return redirect()->route('cars.service_entries.index', $car)->with('success', 'Intrare ștearsă cu succes!');
     }
 }

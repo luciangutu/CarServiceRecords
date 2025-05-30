@@ -3,10 +3,10 @@
 @section('content')
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Detalii intrare service</h1>
+        <h1>Detalii intrare service pentru mașina: {{ $serviceEntry->car->make }} {{ $serviceEntry->car->model }} ({{ $serviceEntry->car->license_plate }})</h1>
         <div>
-            <a href="{{ route('service-entries.edit', $serviceEntry) }}" class="btn btn-primary">Editează</a>
-            <a href="{{ route('service-entries.index') }}" class="btn btn-secondary">Înapoi la listă</a>
+            <a href="{{ route('service_entries.edit', $serviceEntry->id) }}" class="btn btn-primary">Editează</a>
+            <a href="{{ route('cars.service_entries.index', $serviceEntry->car) }}" class="btn btn-secondary">Înapoi la listă</a>
         </div>
     </div>
     
@@ -61,7 +61,7 @@
     </div>
     
     <div class="mt-4">
-        <form method="POST" action="{{ route('service-entries.destroy', $serviceEntry) }}" 
+        <form method="POST" action="{{ route('service_entries.destroy', $serviceEntry->id) }}" 
               onsubmit="return confirm('Sigur doriți să ștergeți această intrare?')">
             @csrf
             @method('DELETE')

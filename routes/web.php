@@ -16,11 +16,12 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 Route::middleware('auth')->group(function () {
-    Route::resource('service-entries', ServiceEntryController::class);
     Route::resource('cars', CarController::class);
+    Route::resource('cars.service_entries', ServiceEntryController::class)->shallow();
 
     Route::get('/', function () {
-        return redirect()->route('service-entries.index');
+        // Decide where home should redirect, perhaps to cars index if service-entries are always under a car
+        return redirect()->route('cars.index');
     })->name('home');
 
     Route::post('/logout', function () {
