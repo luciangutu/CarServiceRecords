@@ -34,16 +34,14 @@ class ServiceEntryController extends Controller
             $query->where('service_name', $request->input('service_name'));
         }
         
-        // if ($request->filled('license_plate')) {
-        //     $query->whereHas('car', function ($q) use ($request) {
-        //         $q->where('license_plate', $request->input('license_plate'));
-        //     });
-        // }
-
         if ($request->filled('car_id')) {
-            $query->where('car_id', $request->input('car_id'));
+            $car = Car::find($request->input('car_id'));
+            if (!$car || $car->user_id !== auth()->id()) {
+                abort(403);
+            }
+            $query->where('car_id', $car->id);
         }
-        
+
         $entries = $query->orderBy('date', 'desc')->paginate(10);
         
         $serviceNames = ServiceEntry::where('user_id', auth()->id())->select('service_name')->distinct()->pluck('service_name');
