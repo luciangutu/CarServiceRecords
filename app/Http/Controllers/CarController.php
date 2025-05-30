@@ -61,4 +61,10 @@ class CarController extends Controller
 
         return redirect()->route('cars.index')->with('success', 'Masina a fost stearsa!');
     }
+
+    public function show(Car $car)
+    {
+        abort_if($car->user_id !== auth()->id(), 403);
+        return view('cars.show', compact('car'));
+    }
 }

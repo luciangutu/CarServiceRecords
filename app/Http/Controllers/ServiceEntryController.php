@@ -71,6 +71,10 @@ class ServiceEntryController extends Controller
             'cost' => 'nullable|numeric',
         ]);
         
+        // Check car ownership
+        $car = Car::findOrFail($validated['car_id']);
+        abort_if($car->user_id !== auth()->id(), 403);
+
         $validated['user_id'] = auth()->id();
         
         ServiceEntry::create($validated);
@@ -105,6 +109,10 @@ class ServiceEntryController extends Controller
             'cost' => 'nullable|numeric',
         ]);
         
+        // Verificare ca masina selectata apartine utilizatorului
+        $car = Car::findOrFail($validated['car_id']);
+        abort_if($car->user_id !== auth()->id(), 403);
+
         $serviceEntry->update($validated);
         return redirect()->route('service-entries.index')->with('success', 'Intrare actualizată cu succes!');
     }
